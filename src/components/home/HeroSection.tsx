@@ -1,239 +1,211 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
-import { useApp } from "@/context/AppProvider";
-import {
-  Sparkles,
-  ArrowRight,
-  Flame,
-  Zap,
-  CheckCircle2,
-  BrainCircuit,
-  Compass,
-  Trophy,
-  ChevronRight,
-  Target,
-} from "lucide-react";
+import { Logo } from "@/components/brand/Logo";
+import { ArrowRight, Compass, Sparkles, CheckCircle2 } from "lucide-react";
 
 export function HeroSection() {
-  const { streak, levelInfo, addXp } = useApp();
-  const [demoQuestDone, setDemoQuestDone] = useState(false);
-  const [demoQuestClaimed, setDemoQuestClaimed] = useState(false);
-
-  const handleTestSolve = () => {
-    if (!demoQuestDone) {
-      setDemoQuestDone(true);
-      addXp(20, "Solved Daily Math Drill!");
-    } else if (!demoQuestClaimed) {
-      setDemoQuestClaimed(true);
-      addXp(50, "Claimed Quest Reward: Daily Precision Sprint!");
-    }
-  };
-
   return (
-    <section className="relative overflow-hidden pt-12 pb-24 lg:pt-20 lg:pb-32 bg-[#111111]">
-      {/* Subtle radial glow mesh */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-[#5B3DF5]/15 via-[#C8FF3D]/10 to-[#FF4FA3]/15 rounded-full blur-3xl pointer-events-none" />
+    <section className="relative overflow-hidden pt-8 pb-20 sm:pt-14 sm:pb-28 bg-[#111111] text-white">
+      {/* Background glow mesh */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[450px] bg-gradient-to-tr from-[#5B3DF5]/20 via-[#C8FF3D]/15 to-[#FF4FA3]/20 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        
+        {/* Top Header Squircle Badge (Booklet Page 1 Exact Brand Presentation) */}
+        <div className="flex justify-center mb-8 sm:mb-12">
+          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-3xl bg-[#C8FF3D] border-3 border-[#111111] shadow-[4px_4px_0px_#111111] transition-transform hover:-translate-y-0.5">
+            {/* The V Mark */}
+            <svg
+              viewBox="0 0 100 100"
+              className="w-9 h-9 overflow-visible"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <g filter="drop-shadow(3px 4px 0px #111111)">
+                {/* Pink left branch */}
+                <rect
+                  x="18"
+                  y="22"
+                  width="24"
+                  height="62"
+                  rx="12"
+                  transform="rotate(-21 30 53)"
+                  fill="#FF4FA3"
+                  stroke="#111111"
+                  strokeWidth="3.5"
+                />
+                {/* Purple right branch */}
+                <rect
+                  x="48"
+                  y="20"
+                  width="24"
+                  height="64"
+                  rx="12"
+                  transform="rotate(22 60 52)"
+                  fill="#5B3DF5"
+                  stroke="#111111"
+                  strokeWidth="3.5"
+                />
+              </g>
+            </svg>
+            <span className="text-[#111111] font-black text-2xl tracking-tight font-sans flex items-center">
+              <span>veze</span>
+              <span className="relative inline-flex flex-col items-center">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[#FF4FA3] text-sm font-black">
+                  ✦
+                </span>
+                <span>i</span>
+              </span>
+            </span>
+          </div>
+        </div>
+
+        {/* Main Grid: Left Typography & Actions, Right Big 3D V Mark & Practice Preview */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           
-          {/* Left Column: Vision, Headline, Tagline, CTAs */}
+          {/* Left Column: Headlines & Product Value Proposition */}
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-            {/* Pill Tagline */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1A1A1E] border border-[#2E2E34] shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#C8FF3D] animate-ping" />
-              <span className="text-xs font-bold text-neutral-300 tracking-wide uppercase">
-                One App. Every Exam. Your Path to Success.
-              </span>
+            
+            {/* Page 1 Headline Hierarchy */}
+            <div className="space-y-1">
+              <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black text-white tracking-tight leading-[1.05]">
+                One App.
+                <br />
+                <span className="text-[#C8FF3D]">Every Exam.</span>
+              </h1>
+              <p className="text-2xl sm:text-4xl lg:text-5xl font-black text-[#FF4FA3] tracking-tight pt-1">
+                Your Path to Success.
+              </p>
             </div>
 
-            {/* Main Headline */}
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.08]">
-              Your exams. <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C8FF3D] via-[#FFFFFF] to-[#FF4FA3]">
-                Your rules.
-              </span>{" "}
-              <br />
-              Your victory.
-            </h1>
-
-            {/* Supporting Copy */}
-            <p className="text-lg sm:text-xl text-neutral-300 max-w-2xl font-normal leading-relaxed mx-auto lg:mx-0">
-              Turn preparation into progress. Learn smarter with AI, level up your skills, and get exam-ready one challenge at a time across CAT, GATE, GMAT, GRE, JEE, and more.
+            {/* Supporting Copy from Booklet Page 1 */}
+            <p className="text-base sm:text-xl text-neutral-300 max-w-xl font-normal leading-relaxed mx-auto lg:mx-0">
+              An AI-powered exam preparation platform that brings practice, mock tests, analytics and study plans into one place.
             </p>
 
+            {/* Announcement Pill: Coming to your campus */}
+            <div className="pt-2 flex justify-center lg:justify-start">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#C8FF3D] text-[#111111] font-black text-xs border-2 border-[#111111] shadow-[2px_2px_0px_#111111]">
+                <span className="w-2 h-2 rounded-full bg-[#111111] animate-ping" />
+                <span>Coming to your campus</span>
+              </div>
+            </div>
+
             {/* Primary & Secondary CTAs */}
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               <Link
                 href="/signup"
                 className="btn-tactile-lime w-full sm:w-auto px-8 py-4 rounded-2xl text-base font-black flex items-center justify-center gap-2"
               >
-                <span>Start your journey</span>
+                <span>Start Preparing</span>
                 <ArrowRight className="w-5 h-5" />
               </Link>
 
-              <Link
-                href="/how-it-works"
+              <a
+                href="#exams"
                 className="w-full sm:w-auto px-7 py-4 rounded-2xl text-base font-bold text-white bg-[#1C1C1E] hover:bg-[#252528] border-2 border-[#2A2A2E] shadow-[0_4px_0_#111111] transition-all flex items-center justify-center gap-2"
               >
                 <Compass className="w-5 h-5 text-[#C8FF3D]" />
-                <span>Explore how VEZEI works</span>
-              </Link>
+                <span>Explore Exams</span>
+              </a>
             </div>
 
-            {/* Social Trust Metrics */}
-            <div className="pt-6 flex flex-wrap items-center justify-center lg:justify-start gap-8 text-neutral-400 text-xs sm:text-sm">
+            {/* Core Verification Badges */}
+            <div className="pt-6 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-neutral-400 text-xs sm:text-sm">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[#C8FF3D]" />
-                <span>Server-Verified Scoring</span>
+                <span>Reviewed Educational Content</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[#FF4FA3]" />
-                <span>Socratic AI Tutor Hints</span>
+                <span>Timed Realistic Mocks</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[#5B3DF5]" />
-                <span>No Paywalls for Base Sylabbus</span>
+                <span>One Unified Account</span>
               </div>
             </div>
+
           </div>
 
-          {/* Right Column: Animated Interactive Product Preview (Daily Quest, XP Progress, Recommendation) */}
-          <div className="lg:col-span-5 relative">
-            <div className="relative mx-auto max-w-md bg-[#17171A] border-3 border-[#2A2A2E] rounded-3xl p-6 shadow-[0_20px_50px_rgba(0,0,0,0.6)] space-y-5">
+          {/* Right Column: Giant Iconic V Mark Artwork from Booklet Page 1 */}
+          <div className="lg:col-span-5 relative flex justify-center items-center">
+            <div className="relative w-full max-w-[340px] sm:max-w-[420px] aspect-square flex items-center justify-center">
               
-              {/* Product Preview Header Bar */}
-              <div className="flex items-center justify-between pb-3 border-b border-[#2A2A2E]">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-10 h-10 rounded-xl bg-[#C8FF3D] border-2 border-[#111111] shadow-[2px_2px_0px_#111111] flex items-center justify-center font-black text-black">
-                    V
-                  </div>
-                  <div>
-                    <h2 className="text-sm font-black text-white">Target: CAT 2026</h2>
-                    <p className="text-xs text-neutral-400">99.5%ile Mission Track</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#111111] border border-[#FF4FA3]/40 text-[#FF4FA3] text-xs font-black">
-                    <Flame className="w-3.5 h-3.5 fill-[#FF4FA3]" />
-                    <span>{streak.current}d streak</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Level & XP Progress Card */}
-              <div className="p-4 rounded-2xl bg-[#1F1F24] border border-[#2E2E36] space-y-2">
-                <div className="flex items-center justify-between text-xs font-bold">
-                  <span className="text-[#C8FF3D] flex items-center gap-1">
-                    <Zap className="w-3.5 h-3.5 fill-[#C8FF3D]" />
-                    Level {levelInfo.level} — {levelInfo.title}
-                  </span>
-                  <span className="text-neutral-300">{levelInfo.currentLevelXp} XP</span>
-                </div>
+              {/* Outer decorative card */}
+              <div className="absolute inset-0 bg-[#17171C] border-3 border-[#2A2A2E] rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.7)] flex flex-col items-center justify-between p-8 overflow-hidden">
                 
-                {/* Progress bar */}
-                <div className="w-full h-3 bg-[#111111] rounded-full overflow-hidden p-0.5 border border-[#2A2A2E]">
-                  <div
-                    className="h-full bg-gradient-to-r from-[#C8FF3D] to-[#FF4FA3] rounded-full transition-all duration-500"
-                    style={{ width: `${Math.max(12, levelInfo.progressPercent)}%` }}
-                  />
-                </div>
-                <div className="flex justify-between text-[11px] text-neutral-400">
-                  <span>{levelInfo.progressPercent}% to Next Level</span>
-                  <span>Target: {levelInfo.nextLevelXp} XP</span>
-                </div>
-              </div>
-
-              {/* Today's Daily Quest (Interactive demo!) */}
-              <div className="p-4 rounded-2xl bg-[#1F1F24] border border-[#2E2E36] space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="p-1.5 rounded-lg bg-[#FF4FA3]/15 text-[#FF4FA3]">
-                      <Target className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h3 className="text-xs font-black text-white">Today's Daily Quest</h3>
-                      <p className="text-[11px] text-neutral-400">Solve Quantitative Sprint</p>
-                    </div>
-                  </div>
-                  <span className="px-2 py-0.5 rounded-full bg-[#111111] text-[#C8FF3D] text-xs font-black border border-[#C8FF3D]/30">
-                    +50 XP
+                {/* Decorative Sparkles */}
+                <div className="w-full flex justify-between items-center text-xs font-black">
+                  <span className="text-[#C8FF3D] flex items-center gap-1">
+                    <Sparkles className="w-4 h-4" />
+                    <span>CAT 2026 LIVE</span>
                   </span>
+                  <span className="text-[#FF4FA3] text-lg font-black animate-pulse">✦</span>
                 </div>
 
-                <div className="flex items-center justify-between text-xs text-neutral-300">
-                  <span>Progress: {demoQuestDone ? "10/10 questions" : "9/10 questions"}</span>
-                  <span className="text-[#C8FF3D] font-bold">{demoQuestDone ? "100%" : "90%"}</span>
+                {/* Giant 3D V Vector Artwork */}
+                <div className="my-auto py-4">
+                  <svg
+                    viewBox="0 0 100 100"
+                    className="w-48 h-48 sm:w-56 sm:h-56 overflow-visible transition-transform duration-500 hover:scale-105"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <g filter="drop-shadow(6px 8px 0px #111111)">
+                      {/* Pink left branch */}
+                      <rect
+                        x="18"
+                        y="20"
+                        width="24"
+                        height="64"
+                        rx="12"
+                        transform="rotate(-21 30 52)"
+                        fill="#FF4FA3"
+                        stroke="#111111"
+                        strokeWidth="3.5"
+                      />
+                      {/* Purple right branch */}
+                      <rect
+                        x="48"
+                        y="18"
+                        width="24"
+                        height="66"
+                        rx="12"
+                        transform="rotate(22 60 51)"
+                        fill="#5B3DF5"
+                        stroke="#111111"
+                        strokeWidth="3.5"
+                      />
+                    </g>
+                  </svg>
                 </div>
 
-                {/* Interactive button on product preview */}
-                <button
-                  onClick={handleTestSolve}
-                  className={`w-full py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
-                    demoQuestClaimed
-                      ? "bg-neutral-800 text-neutral-500 cursor-default"
-                      : demoQuestDone
-                      ? "btn-tactile-lime"
-                      : "bg-[#5B3DF5] hover:bg-[#4E32DC] text-white border-2 border-[#111111] shadow-[2px_2px_0px_#111111]"
-                  }`}
-                >
-                  {demoQuestClaimed ? (
-                    <>
-                      <CheckCircle2 className="w-4 h-4 text-[#C8FF3D]" />
-                      <span>Quest Completed & XP Claimed</span>
-                    </>
-                  ) : demoQuestDone ? (
-                    <>
-                      <Trophy className="w-4 h-4 text-black" />
-                      <span>Claim +50 XP Reward!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4" />
-                      <span>Simulate Solving 10th Question (+20 XP)</span>
-                    </>
-                  )}
-                </button>
+                {/* Live Preview Bar */}
+                <div className="w-full p-3 rounded-2xl bg-[#111111] border border-[#2E2E36] flex items-center justify-between text-xs">
+                  <span className="text-neutral-400 font-bold">Smart Question Bank</span>
+                  <span className="text-[#C8FF3D] font-black">100% Verified</span>
+                </div>
+
               </div>
 
-              {/* Personalized AI Recommendation Preview */}
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-[#1C1C24] to-[#17171C] border border-[#5B3DF5]/30 space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <BrainCircuit className="w-4 h-4 text-[#5B3DF5]" />
-                    <span className="text-xs font-black text-white">AI Diagnostic Focus</span>
-                  </div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#FF4FA3] bg-[#FF4FA3]/15 px-2 py-0.5 rounded-full">
-                    Weak Topic
-                  </span>
-                </div>
-                <p className="text-xs text-neutral-300 leading-snug">
-                  Accuracy in <strong>Profit & Loss (Marked Price)</strong> is 58%. Recommended: 10 targeted adaptive drill questions.
-                </p>
-                <Link
-                  href="/app/practice"
-                  className="inline-flex items-center gap-1 text-xs font-bold text-[#C8FF3D] hover:underline pt-1"
-                >
-                  <span>Launch Practice Drill</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </Link>
+              {/* Float Pill 1 */}
+              <div className="absolute -top-4 -right-4 px-3.5 py-1.5 rounded-2xl bg-[#FF4FA3] text-white font-black text-xs border-2 border-[#111111] shadow-[3px_3px_0px_#111111] rotate-6 animate-float">
+                Realistic Mocks ⏱️
               </div>
 
-            </div>
+              {/* Float Pill 2 */}
+              <div className="absolute -bottom-4 -left-4 px-3.5 py-1.5 rounded-2xl bg-[#C8FF3D] text-[#111111] font-black text-xs border-2 border-[#111111] shadow-[3px_3px_0px_#111111] -rotate-3">
+                Section-wise Analysis 📊
+              </div>
 
-            {/* Decorative background badges */}
-            <div className="hidden sm:block absolute -top-5 -right-5 p-3 rounded-2xl bg-[#FF4FA3] text-black font-black text-xs border-2 border-[#111111] shadow-[3px_3px_0px_#111111] rotate-6 animate-float">
-              🔥 5-Day Streak Active!
-            </div>
-            <div className="hidden sm:block absolute -bottom-5 -left-5 p-3 rounded-2xl bg-[#C8FF3D] text-[#111111] font-black text-xs border-2 border-[#111111] shadow-[3px_3px_0px_#111111] -rotate-3">
-              ⚡ +100 XP Level Up Soon
             </div>
           </div>
 
         </div>
+
       </div>
     </section>
   );

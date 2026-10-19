@@ -1,178 +1,83 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { PRICING_TIERS } from "@/data/pricing";
-import { Check, X, Shield, ArrowRight, HelpCircle } from "lucide-react";
+import { CheckCircle2, ArrowRight, ShieldCheck, Sparkles, BookOpen } from "lucide-react";
 
-export default function PricingPage() {
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("annual");
-
-  const faqs = [
-    {
-      q: "Can I use VEZEI completely for free?",
-      a: "Yes! All verified exam syllabus catalogs, section blueprints, 50 diagnostic practice questions, 1 full-length proctored mock test, and basic daily AI hints are 100% free forever.",
-    },
-    {
-      q: "What extra benefits do I get with Vezei Pro?",
-      a: "Vezei Pro unlocks unlimited practice across 40,000+ verified questions, unlimited full-length proctored mocks with negative marking, unlimited 24/7 AI Tutor Socratic hint ladders, speed vs accuracy time-trap analytics, and the automated mistake notebook.",
-    },
-    {
-      q: "How does the 7-day refund guarantee work?",
-      a: "If you upgrade to Vezei Pro and feel it isn't drastically accelerating your exam preparation within 7 days, you can request an instant 100% refund from your account settings—no questions asked.",
-    },
-    {
-      q: "Do you offer institutional or coaching institute discounts?",
-      a: "Yes. We offer cohort licenses for coaching academies and universities with instructor aggregate performance dashboards and custom mock test scheduling. Contact our institutional team for pricing.",
-    },
-  ];
-
+function PricingPageContent() {
   return (
     <div className="min-h-screen flex flex-col bg-[#111111] text-white">
       <Navbar />
 
-      <main className="flex-1 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <main className="flex-1 py-16 sm:py-24">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
           
-          {/* Header */}
-          <div className="text-center max-w-3xl mx-auto mb-14 space-y-4">
-            <span className="text-xs font-black uppercase tracking-wider text-[#C8FF3D] bg-[#1C1C1E] border border-[#C8FF3D]/30 px-3 py-1 rounded-full">
-              Transparent Pricing
-            </span>
-            <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight">
-              Invest in Your Examination Rank.
-            </h1>
-            <p className="text-neutral-400 text-base sm:text-lg">
-              Simple, transparent pricing with no hidden locks on core syllabus blueprints. Cancel anytime with a single click.
-            </p>
-
-            {/* Billing Toggle */}
-            <div className="inline-flex items-center p-1.5 rounded-2xl bg-[#1C1C22] border border-[#2E2E36] mt-4">
-              <button
-                onClick={() => setBillingCycle("monthly")}
-                className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-                  billingCycle === "monthly"
-                    ? "bg-[#C8FF3D] text-[#111111] shadow-[2px_2px_0px_#111111]"
-                    : "text-neutral-400 hover:text-white"
-                }`}
-              >
-                Monthly Billing
-              </button>
-              <button
-                onClick={() => setBillingCycle("annual")}
-                className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 ${
-                  billingCycle === "annual"
-                    ? "bg-[#C8FF3D] text-[#111111] shadow-[2px_2px_0px_#111111]"
-                    : "text-neutral-400 hover:text-white"
-                }`}
-              >
-                <span>Annual Billing</span>
-                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-[#FF4FA3] text-white">
-                  Save 25%
-                </span>
-              </button>
-            </div>
+          {/* Announcement Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1C1C24] border border-[#C8FF3D]/40 text-[#C8FF3D] text-xs font-black uppercase tracking-wider">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Launch Access Notice</span>
           </div>
 
-          {/* Pricing Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto mb-20">
-            {PRICING_TIERS.map((tier) => {
-              const isPro = tier.id === "pro";
-              const price = billingCycle === "annual" ? tier.priceAnnual : tier.priceMonthly;
+          <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight leading-tight">
+            All Learning Features Are <br />
+            <span className="text-[#C8FF3D]">100% Free During Launch</span>
+          </h1>
 
-              return (
-                <div
-                  key={tier.id}
-                  className={`rounded-3xl p-8 flex flex-col justify-between transition-all relative ${
-                    isPro
-                      ? "bg-[#1C1C24] border-3 border-[#C8FF3D] shadow-[0_15px_40px_rgba(200,255,61,0.2)] md:-translate-y-2"
-                      : "bg-[#18181D] border-2 border-[#2E2E36]"
-                  }`}
-                >
-                  {isPro && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-[#C8FF3D] text-[#111111] text-xs font-black uppercase tracking-wider border-2 border-[#111111] shadow-[2px_2px_0px_#111111]">
-                      Most Popular Choice
-                    </div>
-                  )}
+          <p className="text-base sm:text-xl text-neutral-300 max-w-2xl mx-auto font-normal leading-relaxed">
+            VEZEI is focused on verified educational quality and student outcomes. All practice questions, timed mock tests, performance analytics, and personal study planners are unlocked with a single free student account.
+          </p>
 
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="text-xl font-black text-white">{tier.name}</h3>
-                      <p className="text-xs text-neutral-400 mt-1 min-h-[32px]">{tier.tagline}</p>
-                    </div>
-
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-4xl font-black text-white">{price}</span>
-                      <span className="text-xs text-neutral-400 font-medium">/{tier.period}</span>
-                    </div>
-
-                    <div className="pt-4 border-t border-[#2A2A2E] space-y-3">
-                      <span className="text-xs font-black text-neutral-300 uppercase tracking-wider block">
-                        Included Capabilities:
-                      </span>
-                      <ul className="space-y-2.5 text-xs">
-                        {tier.features.map((feat, i) => (
-                          <li key={i} className="flex items-start gap-2.5">
-                            {feat.included ? (
-                              <Check
-                                className={`w-4 h-4 flex-shrink-0 mt-0.5 ${
-                                  feat.highlight ? "text-[#C8FF3D]" : "text-neutral-400"
-                                }`}
-                              />
-                            ) : (
-                              <X className="w-4 h-4 flex-shrink-0 mt-0.5 text-neutral-600" />
-                            )}
-                            <span
-                              className={
-                                feat.included
-                                  ? feat.highlight
-                                    ? "text-white font-bold"
-                                    : "text-neutral-300"
-                                  : "text-neutral-600 line-through"
-                              }
-                            >
-                              {feat.name}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-
-                  <div className="pt-8">
-                    <Link
-                      href={tier.ctaHref}
-                      className={`w-full py-3.5 rounded-2xl text-center text-sm font-black flex items-center justify-center gap-2 ${
-                        isPro
-                          ? "btn-tactile-lime"
-                          : "bg-[#25252A] hover:bg-[#2E2E34] text-white border-2 border-[#2E2E36]"
-                      }`}
-                    >
-                      <span>{tier.ctaText}</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Pricing FAQ Section */}
-          <div className="max-w-4xl mx-auto bg-[#17171C] border-2 border-[#2E2E36] rounded-3xl p-8 sm:p-12 space-y-6">
-            <h2 className="text-2xl font-black text-white flex items-center gap-2">
-              <HelpCircle className="w-6 h-6 text-[#C8FF3D]" />
-              Frequently Asked Questions About Billing
+          {/* 4 Pillars Card */}
+          <div className="bg-[#17171C] border-3 border-[#2E2E36] rounded-3xl p-8 sm:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] text-left space-y-6">
+            <h2 className="text-xl font-black text-white flex items-center gap-2.5">
+              <ShieldCheck className="w-6 h-6 text-[#C8FF3D]" />
+              <span>Included With Every Student Account</span>
             </h2>
 
-            <div className="space-y-4 pt-2">
-              {faqs.map((faq, i) => (
-                <div key={i} className="p-4 rounded-2xl bg-[#111111] border border-[#2A2A2E] space-y-1">
-                  <h3 className="font-bold text-sm text-white">{faq.q}</h3>
-                  <p className="text-xs text-neutral-300 leading-relaxed">{faq.a}</p>
-                </div>
-              ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <div className="p-4 rounded-2xl bg-[#111111] border border-[#2A2A2E] space-y-1.5">
+                <span className="text-xs font-black text-[#C8FF3D] uppercase block">1. Practice Engine</span>
+                <p className="text-xs font-semibold text-neutral-300">
+                  Topic-wise questions with verified solutions and difficulty sorting across CAT and roadmap exams.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-[#111111] border border-[#2A2A2E] space-y-1.5">
+                <span className="text-xs font-black text-[#FF4FA3] uppercase block">2. Timed Mock Tests</span>
+                <p className="text-xs font-semibold text-neutral-300">
+                  Full-length proctored examination simulations with authentic sectional timers, scoring rules, and review.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-[#111111] border border-[#2A2A2E] space-y-1.5">
+                <span className="text-xs font-black text-[#5B3DF5] uppercase block">3. Performance Analytics</span>
+                <p className="text-xs font-semibold text-neutral-300">
+                  Section-wise speed vs accuracy tracking, error pattern detection, and weak area diagnostics.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-[#111111] border border-[#2A2A2E] space-y-1.5">
+                <span className="text-xs font-black text-white uppercase block">4. Personal Study Plans</span>
+                <p className="text-xs font-semibold text-neutral-300">
+                  Structured weekly milestones tailored to your target examination date and daily available study time.
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-[#2A2A2E] flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-xs text-neutral-400 font-semibold">
+                No credit card required &bull; No subscription lockouts &bull; No ads during timed tests
+              </div>
+
+              <Link
+                href="/signup"
+                className="btn-tactile-lime px-8 py-3.5 rounded-xl text-xs font-black flex items-center gap-2"
+              >
+                <span>Create Free Account</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
           </div>
 
@@ -182,4 +87,8 @@ export default function PricingPage() {
       <Footer />
     </div>
   );
+}
+
+export default function PricingPage() {
+  return <PricingPageContent />;
 }

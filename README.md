@@ -80,6 +80,8 @@ Located in `supabase/migrations/`:
 - `001_initial_schema.sql`: 18 normalized tables with comprehensive RLS policies, foreign keys, and indexes:
   - `profiles`, `exams`, `student_exams`, `subjects`, `topics`, `lessons`, `questions`, `question_options`, `question_solutions`, `practice_sessions`, `question_attempts`, `learning_progress`, `xp_events`, `study_quests`, `quest_progress`, `study_streaks`, `achievements`, `student_achievements`, `study_plans`, `study_tasks`, `mistake_bookmarks`, `bookmarks`, `notifications`, `ai_sessions`, `mock_tests`, `admin_audit_logs`.
 - `002_seed_data.sql`: Seed data for CAT, GATE CS, GMAT Focus, GRE, JEE Advanced, NEET-PG, daily quests, and badges.
+- `003_rbac_roles.sql`: Role-based access control policies and permission matrices for Super Admin, Main Admin, and Tech Developers 1-3.
+- `004_campus_and_review_workflow.sql`: `campus_inquiries` table with public RLS submission policies, `content_reviews` audit logging, and 4-wave launch taxonomy columns (`launch_wave`, `readiness_status`, `verified_rights`, `expert_reviewer`).
 
 ---
 

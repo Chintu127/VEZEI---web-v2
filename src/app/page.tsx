@@ -2,52 +2,44 @@ import React from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/home/HeroSection";
-import { ExamExplorerSection } from "@/components/home/ExamExplorerSection";
-import { GamificationSection } from "@/components/home/GamificationSection";
-import { AiTutorDemoSection } from "@/components/home/AiTutorDemoSection";
-import { MockTestAnalyticsSection } from "@/components/home/MockTestAnalyticsSection";
-import { LearningJourneySection } from "@/components/home/LearningJourneySection";
-import { CommunityChallengesSection } from "@/components/home/CommunityChallengesSection";
-import { VisualRoadmapSection } from "@/components/home/VisualRoadmapSection";
-import { TestimonialsTrustSection } from "@/components/home/TestimonialsTrustSection";
-import { FinalCtaSection } from "@/components/home/FinalCtaSection";
+import { AboutSection } from "@/components/home/AboutSection";
+import { TheChallengeSection } from "@/components/home/TheChallengeSection";
+import { TheVezeiWaySection } from "@/components/home/TheVezeiWaySection";
+import { ExamRoadmapSection } from "@/components/home/ExamRoadmapSection";
+import { CampusLaunchSection } from "@/components/home/CampusLaunchSection";
+import { TrustQualitySection } from "@/components/home/TrustQualitySection";
+import { CampusContactSection } from "@/components/home/CampusContactSection";
 
 export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col bg-[#111111] text-white">
-      {/* 1. Responsive Navbar */}
+      {/* 1. Concise Responsive Navigation */}
       <Navbar />
 
       <main className="flex-1">
-        {/* 2, 3, 4, 5: Hero Section with Headline, CTAs, & Animated Product Preview */}
+        {/* 2. Booklet Page 1: Hero Section ("One App. Every Exam. Your Path to Success.") */}
         <HeroSection />
 
-        {/* 6. Interactive Examination-Category Explorer with Search & Filters */}
-        <ExamExplorerSection />
+        {/* 3. Booklet Page 2: About Section ("What is Vezei?" - Practice, Mock tests, Analytics, Study plans) */}
+        <AboutSection />
 
-        {/* 7. Gamified Learning Showcase with Streaks, Levels, Achievements & Skill Tree */}
-        <GamificationSection />
+        {/* 4. Booklet Page 3: The Challenge ("Exam prep today is scattered") */}
+        <TheChallengeSection />
 
-        {/* 8. AI Tutor Demonstration with Socratic Multi-Stage Hints */}
-        <AiTutorDemoSection />
+        {/* 5. Booklet Page 4: The VEZEI Way ("One place for everything you need") */}
+        <TheVezeiWaySection />
 
-        {/* 9. Mock Test and Performance Analytics Showcase */}
-        <MockTestAnalyticsSection />
+        {/* 6. Booklet Page 5 & Overview Page 3: Exam Roadmap (Waves 1-4 & Interactive Readiness Explorer) */}
+        <ExamRoadmapSection />
 
-        {/* 10. Personalized Learning Journey */}
-        <LearningJourneySection />
+        {/* 7. Booklet Page 6: Campus Launch ("Coming to your college" - 4 stages) */}
+        <CampusLaunchSection />
 
-        {/* 11. Community and Study Challenges */}
-        <CommunityChallengesSection />
+        {/* 8. Booklet Page 8: Trust and Quality ("Built on trust" & What's Next) */}
+        <TrustQualitySection />
 
-        {/* 12. Visual Learning Roadmap with Milestone Nodes */}
-        <VisualRoadmapSection />
-
-        {/* 13. Authentic Testimonials from Pilot Cohorts */}
-        <TestimonialsTrustSection />
-
-        {/* 14. Final Signup CTA */}
-        <FinalCtaSection />
+        {/* 9. Booklet Page 9: Campus Inquiry & Contact ("Let's bring Vezei to your campus.") */}
+        <CampusContactSection />
       </main>
 
       {/* Comprehensive Footer */}

@@ -23,11 +23,12 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
+    { label: "Home", href: "/" },
     { label: "Explore Exams", href: "/exams" },
-    { label: "Roadmaps", href: "/how-it-works" },
     { label: "Features", href: "/features" },
-    { label: "Leaderboard", href: "/leaderboard" },
-    { label: "Resources", href: "/resources" },
+    { label: "How It Works", href: "/how-it-works" },
+    { label: "Campus Launch", href: "/#campus-launch" },
+    { label: "Contact", href: "/#contact" },
   ];
 
   return (
@@ -41,7 +42,7 @@ export function Navbar() {
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-1.5 bg-[#171717] px-4 py-2 rounded-full border border-[#2A2A2E]">
           {navLinks.map((link) => {
-            const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
+            const isActive = pathname === link.href || (link.href !== "/" && !link.href.includes("#") && pathname.startsWith(link.href));
             return (
               <Link
                 key={link.href}
@@ -94,19 +95,19 @@ export function Navbar() {
               </Link>
             </div>
           ) : (
-            // Anonymous guest: Login and Signup CTAs
+            // Anonymous guest: Login and Get Started CTAs
             <div className="flex items-center gap-2.5">
               <Link
                 href="/login"
                 className="px-4 py-2 rounded-xl text-sm font-bold text-neutral-200 hover:text-white hover:bg-[#171717] border border-transparent hover:border-[#2A2A2E] transition-all"
               >
-                Log In
+                Login
               </Link>
               <Link
                 href="/signup"
                 className="btn-tactile-lime px-5 py-2.5 rounded-xl text-sm font-black flex items-center gap-1.5"
               >
-                <span>Start Journey</span>
+                <span>Get Started</span>
                 <Sparkles className="w-4 h-4 fill-[#111111]" />
               </Link>
             </div>

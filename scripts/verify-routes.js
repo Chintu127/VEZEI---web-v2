@@ -50,6 +50,18 @@ const routes = [
   "/api/dashboard",
   "/api/notifications",
   { path: "/api/practice/sessions", method: "POST", body: JSON.stringify({ examSlug: "cat", questionCount: 5 }) },
+  {
+    path: "/api/contact",
+    method: "POST",
+    body: JSON.stringify({
+      fullName: "Dr. Sharma",
+      email: "dean@college.edu",
+      collegeInstitution: "Tech University",
+      inquiryType: "institutional_access",
+      roleType: "administrator",
+      message: "Interested in Vezei diagnostic tests for our 2026 batch.",
+    }),
+  },
 ];
 
 async function checkRoute(item) {

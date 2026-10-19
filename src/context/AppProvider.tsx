@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { calculateLevel, LevelInfo, evaluateStreak } from "@/lib/gamification/engine";
 import { INITIAL_QUESTS, INITIAL_ACHIEVEMENTS } from "@/data/gamification";
 import { StudyQuest, Achievement } from "@/types/database";
@@ -45,6 +45,34 @@ export interface MistakeItem {
   mastered: boolean;
 }
 
+export interface PracticeRecord {
+  attemptId: string;
+  examSlug: string;
+  mode?: "drill" | "mock";
+  totalQuestions: number;
+  correctCount: number;
+  incorrectCount: number;
+  score: number;
+  accuracy: number;
+  timeSpentSeconds: number;
+  completedAt: string;
+  topicsAttempted?: { topic: string; subject: string; isCorrect: boolean }[];
+}
+
+export interface ComputedAnalytics {
+  totalSolved: number;
+  totalCorrect: number;
+  overallAccuracy: number;
+  timeSpentMinutes: number;
+  sessionsCompleted: number;
+  mockTestsCompleted: number;
+  weakTopics: { topic: string; subject: string; accuracy: number; count: number }[];
+  strongTopics: { topic: string; subject: string; accuracy: number; count: number }[];
+  recentAttempts: PracticeRecord[];
+  hasActivity: boolean;
+  roadmapStep: number; // 1 to 7
+}
+
 export interface AppContextType {
   // User Profile
   user: UserProfile | null;
@@ -52,7 +80,7 @@ export interface AppContextType {
   updateUser: (updates: Partial<UserProfile>) => void;
   logout: () => void;
   
-  // Gamification
+  // Gamification & Telemetry
   xp: number;
   levelInfo: LevelInfo;
   streak: { current: number; longest: number; freezeCount: number };
@@ -61,6 +89,11 @@ export interface AppContextType {
   addXp: (amount: number, reason: string) => void;
   claimQuestReward: (questId: string) => void;
   recordStudyActivity: (minutes?: number) => void;
+  
+  // Real Practice History & Analytics
+  practiceHistory: PracticeRecord[];
+  recordPracticeSession: (record: PracticeRecord) => void;
+  computedAnalytics: ComputedAnalytics;
   
   // Learning & Mistakes
   mistakes: MistakeItem[];
@@ -79,10 +112,10 @@ export interface AppContextType {
   dismissCelebration: () => void;
 }
 
-const defaultUser: UserProfile = {
-  id: "usr-rev-01",
-  email: "revanth@vezei.com",
-  fullName: "Revanth",
+const defaultStudentProfile: UserProfile = {
+  id: "usr-guest-01",
+  email: "aspirant@vezei.com",
+  fullName: "Aspirant",
   avatar: "🎯",
   role: "student",
   targetExamId: "cat",
@@ -93,37 +126,6 @@ const defaultUser: UserProfile = {
   dailyGoalMinutes: 60,
   onboardingCompleted: true,
 };
-
-const defaultMistakes: MistakeItem[] = [
-  {
-    id: "m-1",
-    questionId: "q-cat-qa-01",
-    examSlug: "cat",
-    subject: "Quantitative Aptitude",
-    topic: "Profit & Loss",
-    prompt: "A merchant marks his goods up by 40% above CP. 60% sold at MP, 40% at 25% discount on MP...",
-    wrongOption: "B (23.2%)",
-    correctAnswer: "C (26.0%)",
-    explanation: "Overlooked that remaining 40% has discount applied on the marked price 1.40, not base price 1.00.",
-    errorType: "calculation",
-    addedAt: "2026-10-16",
-    mastered: false,
-  },
-  {
-    id: "m-2",
-    questionId: "q-cat-dilr-01",
-    examSlug: "cat",
-    subject: "DILR",
-    topic: "Logical Arrangements",
-    prompt: "Six researchers seated in a row facing North. Exactly two people between B and E...",
-    wrongOption: "D (Cannot be determined)",
-    correctAnswer: "A (D)",
-    explanation: "Failed to realize that combining the fixed [C, B] and [E, D] blocks with 2-seat gap fixes all 6 positions.",
-    errorType: "conceptual",
-    addedAt: "2026-10-15",
-    mastered: false,
-  },
-];
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
@@ -140,15 +142,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return "dark";
   });
 
-  // User state
+  // User profile state
   const [user, setUser] = useState<UserProfile | null>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("vezei_user");
       if (saved) {
-        try { return JSON.parse(saved); } catch (e) { /* use default */ }
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          /* fallback */
+        }
       }
     }
-    return defaultUser;
+    return defaultStudentProfile;
   });
 
   // XP & Gamification state
@@ -157,32 +163,109 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const saved = localStorage.getItem("vezei_xp");
       if (saved) return parseInt(saved, 10);
     }
-    return 2450;
+    return 150;
   });
 
   const [streak, setStreak] = useState(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("vezei_streak");
       if (saved) {
-        try { return JSON.parse(saved); } catch (e) { /* use default */ }
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          /* fallback */
+        }
       }
     }
-    return { current: 5, longest: 14, freezeCount: 1 };
+    return { current: 1, longest: 1, freezeCount: 1 };
   });
 
   const [quests, setQuests] = useState(() => {
-    return INITIAL_QUESTS.map((q, idx) => ({
+    return INITIAL_QUESTS.map((q) => ({
       ...q,
-      currentCount: idx === 0 ? 7 : idx === 1 ? 1 : 15,
-      isCompleted: idx === 1,
+      currentCount: 0,
+      isCompleted: false,
       claimedReward: false,
     }));
   });
 
   const [achievements, setAchievements] = useState<Achievement[]>(INITIAL_ACHIEVEMENTS);
-  const [mistakes, setMistakes] = useState<MistakeItem[]>(defaultMistakes);
-  const [bookmarks, setBookmarks] = useState<string[]>(["q-cat-qa-01"]);
+
+  // Real Practice Session History (Loaded from local storage or initialized)
+  const [practiceHistory, setPracticeHistory] = useState<PracticeRecord[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("vezei_practice_history");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          /* ignore */
+        }
+      }
+    }
+    return [];
+  });
+
+  // Mistake Notebook
+  const [mistakes, setMistakes] = useState<MistakeItem[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("vezei_mistakes");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          /* ignore */
+        }
+      }
+    }
+    return [];
+  });
+
+  // Bookmarks
+  const [bookmarks, setBookmarks] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("vezei_bookmarks");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          /* ignore */
+        }
+      }
+    }
+    return [];
+  });
+
   const [celebration, setCelebration] = useState<{ show: boolean; title: string; subtitle: string; xp: number } | null>(null);
+
+  // Sync Supabase Auth state on mount
+  useEffect(() => {
+    async function checkSupabaseSession() {
+      try {
+        const supabase = createClient();
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (authUser) {
+          setUser((prev) => ({
+            id: authUser.id,
+            email: authUser.email || "aspirant@vezei.com",
+            fullName: authUser.user_metadata?.full_name || authUser.email?.split("@")[0] || "Aspirant",
+            avatar: "🎯",
+            role: (authUser.user_metadata?.role as UserRole) || prev?.role || "student",
+            targetExamId: authUser.user_metadata?.target_exam_id || prev?.targetExamId || "cat",
+            targetExamName: authUser.user_metadata?.target_exam_name || prev?.targetExamName || "CAT (IIM Entrance)",
+            targetExamDate: authUser.user_metadata?.target_exam_date || prev?.targetExamDate || "2026-11-29",
+            targetScore: authUser.user_metadata?.target_score || prev?.targetScore || "99.5%ile",
+            prepLevel: (authUser.user_metadata?.prep_level as any) || prev?.prepLevel || "intermediate",
+            dailyGoalMinutes: authUser.user_metadata?.daily_goal_minutes || prev?.dailyGoalMinutes || 60,
+            onboardingCompleted: true,
+          }));
+        }
+      } catch (err) {
+        console.warn("Supabase auth check offline/fallback mode:", err);
+      }
+    }
+    checkSupabaseSession();
+  }, []);
 
   // Sync state to localStorage
   useEffect(() => {
@@ -190,8 +273,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem("vezei_user", JSON.stringify(user));
       localStorage.setItem("vezei_xp", xp.toString());
       localStorage.setItem("vezei_streak", JSON.stringify(streak));
+      localStorage.setItem("vezei_practice_history", JSON.stringify(practiceHistory));
+      localStorage.setItem("vezei_mistakes", JSON.stringify(mistakes));
+      localStorage.setItem("vezei_bookmarks", JSON.stringify(bookmarks));
     }
-  }, [user, xp, streak]);
+  }, [user, xp, streak, practiceHistory, mistakes, bookmarks]);
 
   // Apply dark/light theme class to documentElement and persist
   useEffect(() => {
@@ -256,7 +342,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const recordStudyActivity = (minutes = 15) => {
     setQuests((prev) =>
       prev.map((q) => {
-        if (q.id === "deep-focus") {
+        if (q.id === "deep-focus" || q.id === "daily-sprint") {
           const newCount = Math.min(q.target_count, q.currentCount + minutes);
           return {
             ...q,
@@ -269,10 +355,28 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
+  // Record a completed practice or mock session
+  const recordPracticeSession = useCallback((record: PracticeRecord) => {
+    setPracticeHistory((prev) => [record, ...prev]);
+    // update quests
+    setQuests((prev) =>
+      prev.map((q) => {
+        if (q.id === "daily-sprint") {
+          const newCount = Math.min(q.target_count, q.currentCount + record.totalQuestions);
+          return { ...q, currentCount: newCount, isCompleted: newCount >= q.target_count };
+        }
+        if (q.id === "accuracy-master" && record.accuracy >= 80) {
+          return { ...q, currentCount: 1, isCompleted: true };
+        }
+        return q;
+      })
+    );
+  }, []);
+
   const addMistake = (item: Omit<MistakeItem, "id" | "addedAt" | "mastered">) => {
     const newMistake: MistakeItem = {
       ...item,
-      id: `m-${Date.now()}`,
+      id: `m-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
       addedAt: new Date().toISOString().split("T")[0],
       mastered: false,
     };
@@ -302,6 +406,83 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setCelebration(null);
   };
 
+  // Compute live analytics based on actual student activity
+  const computedAnalytics: ComputedAnalytics = React.useMemo(() => {
+    if (practiceHistory.length === 0) {
+      return {
+        totalSolved: 0,
+        totalCorrect: 0,
+        overallAccuracy: 0,
+        timeSpentMinutes: 0,
+        sessionsCompleted: 0,
+        mockTestsCompleted: 0,
+        weakTopics: [],
+        strongTopics: [],
+        recentAttempts: [],
+        hasActivity: false,
+        roadmapStep: 2, // Step 1: Selected Exam done, Step 2: Understand Syllabus
+      };
+    }
+
+    let totalSolved = 0;
+    let totalCorrect = 0;
+    let totalTimeSpentSeconds = 0;
+    let mockTestsCompleted = 0;
+
+    const topicStats: Record<string, { topic: string; subject: string; correct: number; total: number }> = {};
+
+    practiceHistory.forEach((session) => {
+      totalSolved += session.totalQuestions;
+      totalCorrect += session.correctCount;
+      totalTimeSpentSeconds += session.timeSpentSeconds || 0;
+      if (session.mode === "mock") mockTestsCompleted++;
+
+      if (session.topicsAttempted) {
+        session.topicsAttempted.forEach((t) => {
+          if (!topicStats[t.topic]) {
+            topicStats[t.topic] = { topic: t.topic, subject: t.subject, correct: 0, total: 0 };
+          }
+          topicStats[t.topic].total++;
+          if (t.isCorrect) topicStats[t.topic].correct++;
+        });
+      }
+    });
+
+    const overallAccuracy = totalSolved > 0 ? Math.round((totalCorrect / totalSolved) * 100) : 0;
+    const timeSpentMinutes = Math.round(totalTimeSpentSeconds / 60);
+
+    const topicList = Object.values(topicStats).map((item) => ({
+      topic: item.topic,
+      subject: item.subject,
+      accuracy: Math.round((item.correct / item.total) * 100),
+      count: item.total,
+    }));
+
+    const weakTopics = topicList.filter((t) => t.accuracy < 65 && t.count >= 2);
+    const strongTopics = topicList.filter((t) => t.accuracy >= 80);
+
+    // Dynamic Roadmap step calculation (1 to 7)
+    let roadmapStep = 3; // at least 1 session completed -> Step 3 (topic practice)
+    if (mistakes.some((m) => m.mastered)) roadmapStep = 4; // reviewed mistakes
+    if (mockTestsCompleted > 0) roadmapStep = 5; // took timed mock
+    if (totalSolved >= 30) roadmapStep = 6; // analyzed weak areas
+    if (totalSolved >= 60 && overallAccuracy >= 80) roadmapStep = 7; // revised & ready
+
+    return {
+      totalSolved,
+      totalCorrect,
+      overallAccuracy,
+      timeSpentMinutes,
+      sessionsCompleted: practiceHistory.length,
+      mockTestsCompleted,
+      weakTopics,
+      strongTopics,
+      recentAttempts: practiceHistory.slice(0, 5),
+      hasActivity: true,
+      roadmapStep,
+    };
+  }, [practiceHistory, mistakes]);
+
   return (
     <AppContext.Provider
       value={{
@@ -317,6 +498,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         addXp,
         claimQuestReward,
         recordStudyActivity,
+        practiceHistory,
+        recordPracticeSession,
+        computedAnalytics,
         mistakes,
         addMistake,
         resolveMistake,

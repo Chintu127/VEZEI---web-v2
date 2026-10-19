@@ -25,53 +25,71 @@ interface StudyTask {
 export default function PlannerPage() {
   const { user, addXp } = useApp();
 
-  const [tasks, setTasks] = useState<StudyTask[]>([
-    {
-      id: "t-1",
-      title: "Quantitative Aptitude: Profit & Loss Marked Price Drill (15 Qs)",
-      subject: "Quantitative Aptitude",
-      durationMinutes: 30,
-      dueDate: "Today",
-      isCompleted: true,
-      priority: "high",
-    },
-    {
-      id: "t-2",
-      title: "Review 3 questions in Mistake Notebook",
-      subject: "Revision",
-      durationMinutes: 15,
-      dueDate: "Today",
-      isCompleted: false,
-      priority: "high",
-    },
-    {
-      id: "t-3",
-      title: "DILR: 2 Practice Sets on Linear Arrangements",
-      subject: "DILR",
-      durationMinutes: 40,
-      dueDate: "Tomorrow",
-      isCompleted: false,
-      priority: "medium",
-    },
-    {
-      id: "t-4",
-      title: "VARC: 3 Reading Comprehension Passages with Socratic Hint Review",
-      subject: "VARC",
-      durationMinutes: 35,
-      dueDate: "Friday",
-      isCompleted: false,
-      priority: "medium",
-    },
-    {
-      id: "t-5",
-      title: "Full-Length Proctored Mock Test #02",
-      subject: "Full Mock",
-      durationMinutes: 120,
-      dueDate: "Sunday",
-      isCompleted: false,
-      priority: "high",
-    },
-  ]);
+  const [tasks, setTasks] = useState<StudyTask[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("vezei_planner_tasks");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          /* fallback */
+        }
+      }
+    }
+    return [
+      {
+        id: "t-1",
+        title: "Quantitative Aptitude: Profit & Loss Marked Price Drill (15 Qs)",
+        subject: "Quantitative Aptitude",
+        durationMinutes: 30,
+        dueDate: "Today",
+        isCompleted: true,
+        priority: "high",
+      },
+      {
+        id: "t-2",
+        title: "Review 3 questions in Mistake Notebook",
+        subject: "Revision",
+        durationMinutes: 15,
+        dueDate: "Today",
+        isCompleted: false,
+        priority: "high",
+      },
+      {
+        id: "t-3",
+        title: "DILR: 2 Practice Sets on Linear Arrangements",
+        subject: "DILR",
+        durationMinutes: 40,
+        dueDate: "Tomorrow",
+        isCompleted: false,
+        priority: "medium",
+      },
+      {
+        id: "t-4",
+        title: "VARC: 3 Reading Comprehension Passages with Socratic Hint Review",
+        subject: "VARC",
+        durationMinutes: 35,
+        dueDate: "Friday",
+        isCompleted: false,
+        priority: "medium",
+      },
+      {
+        id: "t-5",
+        title: "Full-Length Proctored Mock Test #02",
+        subject: "Full Mock",
+        durationMinutes: 120,
+        dueDate: "Sunday",
+        isCompleted: false,
+        priority: "high",
+      },
+    ];
+  });
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("vezei_planner_tasks", JSON.stringify(tasks));
+    }
+  }, [tasks]);
 
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);

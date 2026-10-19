@@ -24,8 +24,9 @@ function PracticeSessionContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const examSlug = searchParams.get("exam") || "cat";
+  const sessionMode = searchParams.get("mode") || "drill";
 
-  const { addXp, recordStudyActivity, bookmarks, toggleBookmark, addMistake } = useApp();
+  const { addXp, recordStudyActivity, bookmarks, toggleBookmark, addMistake, recordPracticeSession } = useApp();
 
   // Load questions (filtered by exam or fallback to full sample question bank)
   const questions: Question[] = SAMPLE_QUESTIONS;
@@ -128,6 +129,29 @@ function PracticeSessionContent() {
       timeSpent: 20 * 60 - timeLeft,
       completedAt: new Date().toISOString(),
     };
+
+    // Record in global app state for real analytics
+    recordPracticeSession({
+      attemptId: sessionResult.attemptId,
+      examSlug,
+      mode: sessionMode === "mock" ? "mock" : "drill",
+      totalQuestions: questions.length,
+      correctCount: result.correctCount,
+      incorrectCount: result.incorrectCount,
+      score: result.score,
+      accuracy: result.accuracy,
+      timeSpentSeconds: 20 * 60 - timeLeft,
+      completedAt: sessionResult.completedAt,
+      topicsAttempted: questions.map((q) => {
+        const chosen = selectedAnswers[q.id];
+        const correct = Array.isArray(q.correctAnswer) ? q.correctAnswer[0] : q.correctAnswer;
+        return {
+          topic: q.topic,
+          subject: q.subject,
+          isCorrect: chosen === correct,
+        };
+      }),
+    });
 
     if (typeof window !== "undefined") {
       sessionStorage.setItem("latest_test_result", JSON.stringify(sessionResult));

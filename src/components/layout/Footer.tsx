@@ -31,42 +31,43 @@ export function Footer() {
           {/* Exam Curricula */}
           <div>
             <h4 className="text-white font-bold text-sm tracking-wider uppercase mb-4">
-              Supported Exams
+              Exam Catalog
             </h4>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link href="/exams/cat" className="hover:text-[#C8FF3D] transition-colors">
-                  CAT (IIMs & Top MBA)
+                <Link href="/exams/cat" className="hover:text-[#C8FF3D] transition-colors flex items-center justify-between">
+                  <span>CAT 2026</span>
+                  <span className="text-[10px] font-black uppercase text-[#C8FF3D] bg-[#1C2818] px-1.5 py-0.5 rounded">Live</span>
                 </Link>
               </li>
               <li>
-                <Link href="/exams/gate-cs" className="hover:text-[#C8FF3D] transition-colors">
-                  GATE Computer Science
+                <Link href="/exams#xat" className="hover:text-[#C8FF3D] transition-colors">
+                  XAT (Wave 1)
                 </Link>
               </li>
               <li>
-                <Link href="/exams/gmat" className="hover:text-[#C8FF3D] transition-colors">
-                  GMAT Focus Edition
+                <Link href="/exams#snap" className="hover:text-[#C8FF3D] transition-colors">
+                  SNAP & NMAT
                 </Link>
               </li>
               <li>
-                <Link href="/exams/gre" className="hover:text-[#C8FF3D] transition-colors">
-                  GRE General Test
+                <Link href="/exams#gmat" className="hover:text-[#C8FF3D] transition-colors">
+                  GMAT Focus (Wave 2)
                 </Link>
               </li>
               <li>
-                <Link href="/exams/jee-adv" className="hover:text-[#C8FF3D] transition-colors">
-                  JEE Advanced (IITs)
+                <Link href="/exams#gre" className="hover:text-[#C8FF3D] transition-colors">
+                  GRE General (Wave 2)
                 </Link>
               </li>
               <li>
-                <Link href="/exams/sat" className="hover:text-[#C8FF3D] transition-colors">
-                  Digital SAT
+                <Link href="/exams#sat" className="hover:text-[#C8FF3D] transition-colors">
+                  Digital SAT (Wave 3)
                 </Link>
               </li>
               <li>
-                <Link href="/exams/ielts" className="hover:text-[#C8FF3D] transition-colors">
-                  IELTS Academic
+                <Link href="/exams#gate" className="hover:text-[#C8FF3D] transition-colors">
+                  GATE CS (Wave 4)
                 </Link>
               </li>
             </ul>

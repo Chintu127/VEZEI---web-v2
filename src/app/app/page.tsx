@@ -2,507 +2,543 @@
 
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useApp } from "@/context/AppProvider";
-import { useI18n } from "@/context/LanguageContext";
 import {
-  Flame,
-  Zap,
   Target,
-  Trophy,
-  BrainCircuit,
+  Clock,
+  BarChart3,
+  Calendar,
   ArrowRight,
   CheckCircle2,
-  AlertTriangle,
+  Lock,
   Play,
-  Award,
-  ChevronRight,
-  Swords,
+  AlertTriangle,
   Sparkles,
-  BookOpen,
+  ShieldAlert,
+  ChevronRight,
+  TrendingUp,
+  Flame,
+  Zap,
+  Settings,
+  User,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 export default function StudentDashboardPage() {
-  const {
-    user,
-    streak,
-    levelInfo,
-    quests,
-    claimQuestReward,
-    mistakes,
-    achievements,
-  } = useApp();
-  const { t } = useI18n();
+  const { user, streak, levelInfo, theme, toggleTheme, computedAnalytics, mistakes } = useApp();
+
+  const unresolvedMistakes = mistakes.filter((m) => !m.mastered);
+
+  // 7-Step Visual Study Roadmap definition
+  const roadmapSteps = [
+    {
+      step: 1,
+      title: "Choose target exam",
+      description: `Target set to ${user?.targetExamName || "CAT 2026"}`,
+      status: "completed" as const,
+    },
+    {
+      step: 2,
+      title: "Understand the syllabus",
+      description: "Review sectional blueprints, question weightages, and marking scheme",
+      status: computedAnalytics.hasActivity ? ("completed" as const) : ("in_progress" as const),
+    },
+    {
+      step: 3,
+      title: "Begin topic-wise practice",
+      description: "Master foundational concepts with verified explanations",
+      status: computedAnalytics.totalSolved >= 15
+        ? ("completed" as const)
+        : computedAnalytics.totalSolved > 0
+        ? ("in_progress" as const)
+        : ("available" as const),
+    },
+    {
+      step: 4,
+      title: "Review mistakes",
+      description: "Flag conceptual missteps and resolve mistake notebook entries",
+      status: mistakes.some((m) => m.mastered)
+        ? ("completed" as const)
+        : unresolvedMistakes.length > 0
+        ? ("in_progress" as const)
+        : computedAnalytics.totalSolved > 0
+        ? ("available" as const)
+        : ("locked" as const),
+    },
+    {
+      step: 5,
+      title: "Take timed mock tests",
+      description: "Test under full proctored conditions with sectional time-locks",
+      status: computedAnalytics.mockTestsCompleted >= 1
+        ? ("completed" as const)
+        : computedAnalytics.totalSolved >= 10
+        ? ("available" as const)
+        : ("locked" as const),
+    },
+    {
+      step: 6,
+      title: "Analyze weak areas",
+      description: "Inspect velocity vs accuracy gaps in high-penalty sections",
+      status: computedAnalytics.totalSolved >= 30
+        ? ("completed" as const)
+        : computedAnalytics.mockTestsCompleted >= 1
+        ? ("in_progress" as const)
+        : ("locked" as const),
+    },
+    {
+      step: 7,
+      title: "Revise and reassess readiness",
+      description: "Final targeted drill iterations to reach target score percentile",
+      status: computedAnalytics.totalSolved >= 50 && computedAnalytics.overallAccuracy >= 80
+        ? ("completed" as const)
+        : computedAnalytics.totalSolved >= 30
+        ? ("in_progress" as const)
+        : ("locked" as const),
+    },
+  ];
 
   return (
     <div className="space-y-8 animate-in fade-in duration-200">
       
-      {/* 1. VISUAL HERO BANNER WITH 3D ARTWORK & STATS */}
-      <div className="relative overflow-hidden bg-white dark:bg-[#17171C] border border-neutral-200 dark:border-[#2E2E36] rounded-3xl p-6 sm:p-8 shadow-sm dark:shadow-[0_15px_40px_rgba(0,0,0,0.5)] transition-colors">
-        
-        {/* Visual Background Accent Glow */}
-        <div className="absolute -right-20 -top-20 w-80 h-80 bg-[#C8FF3D]/10 dark:bg-[#C8FF3D]/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-[#5B3DF5]/10 dark:bg-[#5B3DF5]/15 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+      {/* 1. DASHBOARD HEADER */}
+      <div className="bg-white dark:bg-[#17171C] border border-neutral-200 dark:border-[#2E2E36] rounded-3xl p-6 sm:p-8 shadow-sm dark:shadow-[0_10px_30px_rgba(0,0,0,0.4)] transition-colors">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           
-          {/* Left Hero Content: Greeting, Target & Gamification Bar */}
-          <div className="lg:col-span-8 space-y-4">
-            
-            {/* Target Exam Pill */}
+          {/* Greeting & Target Information */}
+          <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-2xl">{user?.avatar || "🎯"}</span>
-              <span className="text-xs font-black uppercase tracking-wider text-[#2E7D32] dark:text-[#C8FF3D] bg-[#F4FDE5] dark:bg-[#111111] border border-[#C8FF3D]/40 px-3 py-1 rounded-full shadow-sm">
+              <span className="text-xl">{user?.avatar || "🎯"}</span>
+              <span className="text-xs font-black uppercase tracking-wider text-[#111111] dark:text-[#C8FF3D] bg-[#F4FDE5] dark:bg-[#1C2818] border border-[#C8FF3D]/50 px-3 py-1 rounded-full">
                 {user?.targetExamName || "CAT 2026"}
               </span>
               <span className="text-xs font-bold text-neutral-500 dark:text-neutral-400">
-                {t("targetExam")}: {user?.targetScore || "99.5%ile"}
+                Target Score: <strong className="text-neutral-900 dark:text-white">{user?.targetScore || "99.5%ile"}</strong>
               </span>
             </div>
 
-            {/* Dynamic Localized Greeting */}
             <h1 className="text-2xl sm:text-4xl font-black text-neutral-900 dark:text-white tracking-tight">
-              {t("readyToConquer")}, {user?.fullName || "Aspirant"}?
+              Welcome back, {user?.fullName || "Aspirant"}
             </h1>
 
-            {/* Compact Exam Target Info */}
             <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">
-              {t("targetExam")} Date:{" "}
-              <strong className="text-neutral-900 dark:text-white">{user?.targetExamDate || "Nov 29, 2026"}</strong>{" "}
-              • {t("dailyGoal")}: <strong className="text-neutral-900 dark:text-white">{user?.dailyGoalMinutes || 60} mins</strong>
+              Exam Date: <strong className="text-neutral-900 dark:text-white">{user?.targetExamDate || "Nov 29, 2026"}</strong> &bull; Daily Study Goal: <strong className="text-neutral-900 dark:text-white">{user?.dailyGoalMinutes || 60} mins</strong>
             </p>
-
-            {/* Quick Stat Badges & Launch Button */}
-            <div className="flex flex-wrap items-center gap-3 pt-2">
-              
-              {/* Streak Badge */}
-              <div className="px-4 py-2.5 rounded-2xl bg-neutral-50 dark:bg-[#111111] border border-[#FF4FA3]/40 text-center shadow-sm">
-                <div className="flex items-center justify-center gap-1.5 text-[#FF4FA3] font-black text-sm">
-                  <Flame className="w-4 h-4 fill-[#FF4FA3]" />
-                  <span>{streak.current}d</span>
-                </div>
-                <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-bold uppercase tracking-wider block">
-                  {t("activeStreak")}
-                </span>
-              </div>
-
-              {/* Level & XP Gauge */}
-              <div className="px-4 py-2 rounded-2xl bg-neutral-50 dark:bg-[#111111] border border-[#C8FF3D]/40 text-left min-w-[190px] shadow-sm">
-                <div className="flex items-center justify-between gap-2 text-xs font-black mb-1">
-                  <span className="text-[#2E7D32] dark:text-[#C8FF3D] flex items-center gap-1">
-                    <Zap className="w-3.5 h-3.5 fill-[#C8FF3D] text-[#C8FF3D]" />
-                    {t("level")} {levelInfo.level}
-                  </span>
-                  <span className="text-neutral-700 dark:text-neutral-300 font-bold">
-                    {levelInfo.currentLevelXp} XP
-                  </span>
-                </div>
-                
-                <div className="w-full h-2 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-[#C8FF3D] to-[#FF4FA3] rounded-full transition-all duration-300"
-                    style={{ width: `${levelInfo.progressPercent}%` }}
-                  />
-                </div>
-                <div className="flex justify-between text-[10px] text-neutral-500 dark:text-neutral-400 mt-1">
-                  <span className="truncate max-w-[90px] font-medium">{levelInfo.title}</span>
-                  <span>{levelInfo.nextLevelXp} XP Next</span>
-                </div>
-              </div>
-
-              {/* High-Impact Tactical CTA Button */}
-              <Link
-                href="/app/practice"
-                className="btn-tactile-lime px-6 py-3 rounded-2xl text-xs font-black flex items-center gap-2 shadow-md transition-transform hover:scale-105"
-              >
-                <Play className="w-4 h-4 fill-black" />
-                <span>{t("launchQuickDrill")}</span>
-              </Link>
-            </div>
-
           </div>
 
-          {/* Right Hero Illustration: 3D Student Podium Artwork */}
-          <div className="lg:col-span-4 flex justify-center lg:justify-end">
-            <div className="relative w-full max-w-[280px] sm:max-w-[320px] aspect-[4/3] rounded-2xl overflow-hidden border-2 border-[#C8FF3D]/40 shadow-xl group">
-              <Image
-                src="/images/hero-banner.jpg"
-                alt="VEZEI 3D Learning Arena"
-                fill
-                priority
-                sizes="(max-width: 768px) 100vw, 320px"
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-3">
-                <span className="text-[11px] font-black text-white bg-[#111111]/80 backdrop-blur-md px-2.5 py-1 rounded-lg border border-[#C8FF3D]/50 flex items-center gap-1.5">
-                  <Sparkles className="w-3 h-3 text-[#C8FF3D]" />
-                  <span>AI Adaptive Curriculum</span>
-                </span>
-              </div>
+          {/* Quick Status Badges & Controls */}
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Streak Badge */}
+            <div className="px-3.5 py-2 rounded-2xl bg-neutral-50 dark:bg-[#111111] border border-[#FF4FA3]/40 text-[#FF4FA3] flex items-center gap-1.5 font-black text-xs">
+              <Flame className="w-4 h-4 fill-[#FF4FA3]" />
+              <span>{streak.current}d Streak</span>
             </div>
+
+            {/* Level Badge */}
+            <div className="px-3.5 py-2 rounded-2xl bg-neutral-50 dark:bg-[#111111] border border-[#C8FF3D]/40 text-neutral-900 dark:text-[#C8FF3D] flex items-center gap-1.5 font-black text-xs">
+              <Zap className="w-4 h-4 fill-[#C8FF3D]" />
+              <span>Level {levelInfo.level} ({levelInfo.currentLevelXp} XP)</span>
+            </div>
+
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle Theme"
+              className="p-2.5 rounded-2xl bg-neutral-100 dark:bg-[#111111] border border-neutral-300 dark:border-[#2E2E36] text-neutral-700 dark:text-neutral-300 hover:text-black dark:hover:text-white transition-colors"
+            >
+              {theme === "dark" ? <Sun className="w-4 h-4 text-[#C8FF3D]" /> : <Moon className="w-4 h-4 text-[#5B3DF5]" />}
+            </button>
+
+            {/* Profile & Settings Controls */}
+            <Link
+              href="/app/profile"
+              className="p-2.5 rounded-2xl bg-neutral-100 dark:bg-[#111111] border border-neutral-300 dark:border-[#2E2E36] text-neutral-700 dark:text-neutral-300 hover:text-black dark:hover:text-white transition-colors"
+              title="Profile"
+            >
+              <User className="w-4 h-4" />
+            </Link>
+            <Link
+              href="/app/settings"
+              className="p-2.5 rounded-2xl bg-neutral-100 dark:bg-[#111111] border border-neutral-300 dark:border-[#2E2E36] text-neutral-700 dark:text-neutral-300 hover:text-black dark:hover:text-white transition-colors"
+              title="Settings"
+            >
+              <Settings className="w-4 h-4" />
+            </Link>
           </div>
 
         </div>
       </div>
 
-      {/* 2. VISUAL FEATURE SPOTLIGHT CARDS (LOW TEXT, HIGH IMPACT 3D IMAGES) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        {/* Card 1: 1v1 Quiz Battle Arena */}
-        <div className="group relative overflow-hidden rounded-3xl bg-white dark:bg-[#17171C] border border-neutral-200 dark:border-[#2E2E36] p-5 shadow-sm dark:shadow-md transition-all hover:border-[#FF4FA3]/60 flex flex-col sm:flex-row gap-5 items-center">
-          <div className="relative w-full sm:w-44 h-36 flex-shrink-0 rounded-2xl overflow-hidden border border-[#FF4FA3]/40 shadow-md">
-            <Image
-              src="/images/battle-arena.jpg"
-              alt="1v1 Battle Arena"
-              fill
-              sizes="(max-width: 640px) 100vw, 176px"
-              className="object-cover transition-transform duration-500 group-hover:scale-110"
-            />
-            <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-[#FF4FA3] text-white shadow">
-              Live Arena
-            </span>
-          </div>
-
-          <div className="space-y-2 flex-1 text-center sm:text-left">
-            <div className="flex items-center justify-center sm:justify-start gap-2">
-              <Swords className="w-4 h-4 text-[#FF4FA3]" />
-              <h3 className="text-base font-black text-neutral-900 dark:text-white">
-                {t("battleArena")}
-              </h3>
-            </div>
-            <p className="text-xs text-neutral-600 dark:text-neutral-400">
-              {t("battleSub")}
-            </p>
-            <div className="pt-1">
-              <Link
-                href="/app/battle"
-                className="btn-tactile-pink inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black shadow-sm"
-              >
-                <span>{t("enterArena")} (+100 XP)</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
+      {/* 2. PRIMARY LEARNING ACTIONS (THE FOUR CORE FEATURES FROM BOOKLET PAGE 2) */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-black text-neutral-900 dark:text-white">
+            Primary Learning Actions
+          </h2>
+          <span className="text-xs text-neutral-500 font-semibold">
+            One Unified Workspace
+          </span>
         </div>
 
-        {/* Card 2: 24/7 AI Doubt Solver */}
-        <div className="group relative overflow-hidden rounded-3xl bg-white dark:bg-[#17171C] border border-neutral-200 dark:border-[#2E2E36] p-5 shadow-sm dark:shadow-md transition-all hover:border-[#5B3DF5]/60 flex flex-col sm:flex-row gap-5 items-center">
-          <div className="relative w-full sm:w-44 h-36 flex-shrink-0 rounded-2xl overflow-hidden border border-[#5B3DF5]/40 shadow-md">
-            <Image
-              src="/images/ai-tutor.jpg"
-              alt="24/7 AI Doubt Tutor"
-              fill
-              sizes="(max-width: 640px) 100vw, 176px"
-              className="object-cover transition-transform duration-500 group-hover:scale-110"
-            />
-            <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-[#5B3DF5] text-white shadow">
-              24/7 AI
-            </span>
-          </div>
-
-          <div className="space-y-2 flex-1 text-center sm:text-left">
-            <div className="flex items-center justify-center sm:justify-start gap-2">
-              <BrainCircuit className="w-4 h-4 text-[#5B3DF5]" />
-              <h3 className="text-base font-black text-neutral-900 dark:text-white">
-                {t("aiTutorHeader")}
-              </h3>
-            </div>
-            <p className="text-xs text-neutral-600 dark:text-neutral-400">
-              {t("aiTutorSub")}
-            </p>
-            <div className="pt-1">
-              <Link
-                href="/app/ai-tutor"
-                className="btn-tactile-purple inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black shadow-sm"
-              >
-                <span>{t("askAiTutor")}</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      {/* 3. MAIN 2-COLUMN GRID (QUESTS & MASTERY) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        {/* Left Column: Today's Quests & Curriculum Node */}
-        <div className="lg:col-span-8 space-y-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           
-          {/* Today's Daily Quests */}
-          <div className="bg-white dark:bg-[#17171C] border border-neutral-200 dark:border-[#2E2E36] rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm transition-colors">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[#FF4FA3] flex items-center justify-center text-white shadow-sm">
-                  <Target className="w-5 h-5" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-black text-neutral-900 dark:text-white">
-                    {t("todaysQuests")}
-                  </h2>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                    {t("resetsAt")}
-                  </p>
-                </div>
-              </div>
-
-              <span className="text-xs text-[#2E7D32] dark:text-[#C8FF3D] font-bold bg-[#F4FDE5] dark:bg-[#1C1F16] border border-[#C8FF3D]/40 px-3 py-1 rounded-full">
-                {quests.filter((q) => q.isCompleted).length}/{quests.length} Done
-              </span>
-            </div>
-
+          {/* Card 1: Continue Practice */}
+          <Link
+            href="/app/practice"
+            className="group bg-white dark:bg-[#17171C] border-2 border-neutral-200 dark:border-[#2E2E36] hover:border-[#C8FF3D] rounded-3xl p-6 shadow-sm transition-all hover:-translate-y-1 flex flex-col justify-between"
+          >
             <div className="space-y-3">
-              {quests.map((q, idx) => {
-                const questTitle =
-                  idx === 0
-                    ? t("dailyPracticeSprint")
-                    : idx === 1
-                    ? t("sharpshooter")
-                    : t("deepStudySprint");
-
-                return (
-                  <div
-                    key={q.id}
-                    className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                      q.isCompleted
-                        ? "bg-[#F4FDE5] dark:bg-[#1E2519] border-[#C8FF3D]/60"
-                        : "bg-neutral-50 dark:bg-[#111111] border-neutral-200 dark:border-[#2A2A2E]"
-                    }`}
-                  >
-                    <div className="space-y-1.5 flex-1">
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-sm font-black text-neutral-900 dark:text-white">
-                          {questTitle}
-                        </h4>
-                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-white dark:bg-[#17171C] text-[#2E7D32] dark:text-[#C8FF3D] border border-[#C8FF3D]/40 shadow-sm">
-                          +{q.xp_reward} XP
-                        </span>
-                      </div>
-                      <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                        {q.description}
-                      </p>
-
-                      {/* Progress Bar */}
-                      <div className="w-full max-w-md h-2 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden mt-1">
-                        <div
-                          className={`h-full rounded-full transition-all duration-300 ${
-                            q.isCompleted ? "bg-[#C8FF3D]" : "bg-[#5B3DF5]"
-                          }`}
-                          style={{
-                            width: `${Math.min(100, (q.currentCount / q.target_count) * 100)}%`,
-                          }}
-                        />
-                      </div>
-                      <span className="text-[10px] text-neutral-500 dark:text-neutral-400">
-                        {q.currentCount} / {q.target_count} progress
-                      </span>
-                    </div>
-
-                    {/* Quest Action Button */}
-                    <div className="flex-shrink-0">
-                      {q.claimedReward ? (
-                        <span className="inline-flex items-center gap-1 text-xs font-bold text-neutral-500">
-                          <CheckCircle2 className="w-4 h-4 text-[#2E7D32] dark:text-[#C8FF3D]" />
-                          <span>{t("claimed")}</span>
-                        </span>
-                      ) : q.isCompleted ? (
-                        <button
-                          onClick={() => claimQuestReward(q.id)}
-                          className="btn-tactile-lime px-4 py-2 rounded-xl text-xs font-black animate-pulse shadow"
-                        >
-                          {t("claimXp")}
-                        </button>
-                      ) : (
-                        <Link
-                          href="/app/practice"
-                          className="px-4 py-2 rounded-xl bg-white dark:bg-[#1C1C22] hover:bg-neutral-100 dark:hover:bg-[#25252A] text-neutral-900 dark:text-white text-xs font-bold border border-neutral-300 dark:border-[#2A2A2E] inline-block shadow-sm transition-all"
-                        >
-                          {t("practiceNow")}
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+              <div className="w-12 h-12 rounded-2xl bg-[#C8FF3D] border-2 border-[#111111] shadow-[2px_2px_0px_#111111] flex items-center justify-center text-[#111111]">
+                <Target className="w-6 h-6 stroke-[2.5]" />
+              </div>
+              <h3 className="text-lg font-black text-neutral-900 dark:text-white group-hover:text-[#C8FF3D] transition-colors">
+                Continue Practice
+              </h3>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed font-medium">
+                Topic-wise questions with verified solutions, sorted by difficulty levels.
+              </p>
             </div>
+            <div className="pt-5 flex items-center gap-1.5 text-xs font-black text-[#111111] dark:text-[#C8FF3D]">
+              <span>Launch Practice Drill</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </div>
+          </Link>
+
+          {/* Card 2: Start a Mock Test */}
+          <Link
+            href="/app/mock-tests"
+            className="group bg-white dark:bg-[#17171C] border-2 border-neutral-200 dark:border-[#2E2E36] hover:border-[#FF4FA3] rounded-3xl p-6 shadow-sm transition-all hover:-translate-y-1 flex flex-col justify-between"
+          >
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#FF4FA3] border-2 border-[#111111] shadow-[2px_2px_0px_#111111] flex items-center justify-center text-white">
+                <Clock className="w-6 h-6 stroke-[2.5]" />
+              </div>
+              <h3 className="text-lg font-black text-neutral-900 dark:text-white group-hover:text-[#FF4FA3] transition-colors">
+                Start a Mock Test
+              </h3>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed font-medium">
+                Timed examination-style tests with autosave, marking rules, and full review.
+              </p>
+            </div>
+            <div className="pt-5 flex items-center gap-1.5 text-xs font-black text-[#FF4FA3]">
+              <span>Take Proctored Mock</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </div>
+          </Link>
+
+          {/* Card 3: Review Performance */}
+          <Link
+            href="/app/analytics"
+            className="group bg-white dark:bg-[#17171C] border-2 border-neutral-200 dark:border-[#2E2E36] hover:border-[#5B3DF5] rounded-3xl p-6 shadow-sm transition-all hover:-translate-y-1 flex flex-col justify-between"
+          >
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#5B3DF5] border-2 border-[#111111] shadow-[2px_2px_0px_#111111] flex items-center justify-center text-white">
+                <BarChart3 className="w-6 h-6 stroke-[2.5]" />
+              </div>
+              <h3 className="text-lg font-black text-neutral-900 dark:text-white group-hover:text-[#5B3DF5] transition-colors">
+                Review Performance
+              </h3>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed font-medium">
+                Speed, section accuracy, time per question, and error diagnostics.
+              </p>
+            </div>
+            <div className="pt-5 flex items-center gap-1.5 text-xs font-black text-[#5B3DF5]">
+              <span>Inspect Analytics</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </div>
+          </Link>
+
+          {/* Card 4: Open Study Plan */}
+          <Link
+            href="/app/planner"
+            className="group bg-white dark:bg-[#17171C] border-2 border-neutral-200 dark:border-[#2E2E36] hover:border-[#C8FF3D] rounded-3xl p-6 shadow-sm transition-all hover:-translate-y-1 flex flex-col justify-between"
+          >
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-white dark:bg-[#111111] border-2 border-[#111111] shadow-[2px_2px_0px_#111111] flex items-center justify-center text-neutral-900 dark:text-white">
+                <Calendar className="w-6 h-6 stroke-[2.5]" />
+              </div>
+              <h3 className="text-lg font-black text-neutral-900 dark:text-white group-hover:text-[#C8FF3D] transition-colors">
+                Open Study Plan
+              </h3>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed font-medium">
+                Weekly goals organized around your target examination date and weak areas.
+              </p>
+            </div>
+            <div className="pt-5 flex items-center gap-1.5 text-xs font-black text-[#111111] dark:text-[#C8FF3D]">
+              <span>Manage Weekly Schedule</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </div>
+          </Link>
+
+        </div>
+      </div>
+
+      {/* 3. PROGRESS AREA (ACTUAL ATTEMPT DATA OR HONEST ONBOARDING STATE) */}
+      <div className="bg-white dark:bg-[#17171C] border border-neutral-200 dark:border-[#2E2E36] rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm transition-colors">
+        
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-neutral-200 dark:border-[#2A2A2E]">
+          <div>
+            <h2 className="text-xl font-black text-neutral-900 dark:text-white">
+              Learning Progress &amp; Telemetry
+            </h2>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+              Calibrated strictly from your recorded practice sessions and mock attempts.
+            </p>
           </div>
 
-          {/* Continue Learning: Next Skill Tree Node */}
-          <div className="bg-white dark:bg-[#17171C] border border-neutral-200 dark:border-[#2E2E36] rounded-3xl p-6 sm:p-8 space-y-4 shadow-sm transition-colors">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black uppercase tracking-wider text-[#5B3DF5]">
-                {t("curriculumProgression")}
-              </span>
-              <Link href="/app/learn" className="text-xs font-bold text-[#5B3DF5] dark:text-[#C8FF3D] hover:underline">
-                {t("skillMap")} →
-              </Link>
+          {computedAnalytics.hasActivity && (
+            <span className="text-xs font-black text-[#2E7D32] dark:text-[#C8FF3D] bg-[#F4FDE5] dark:bg-[#1C2818] border border-[#C8FF3D]/40 px-3 py-1 rounded-full self-start sm:self-auto">
+              {computedAnalytics.sessionsCompleted} Session{computedAnalytics.sessionsCompleted > 1 ? "s" : ""} Recorded
+            </span>
+          )}
+        </div>
+
+        {!computedAnalytics.hasActivity ? (
+          /* ONBOARDING STATE: Student has not attempted questions yet */
+          <div className="p-8 rounded-2xl bg-neutral-50 dark:bg-[#111111] border-2 border-dashed border-neutral-300 dark:border-[#2E2E36] text-center space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-[#C8FF3D] border-2 border-[#111111] shadow-[2px_2px_0px_#111111] mx-auto flex items-center justify-center text-[#111111]">
+              <Play className="w-6 h-6 fill-[#111111]" />
             </div>
-
-            <div className="p-5 rounded-2xl bg-neutral-50 dark:bg-gradient-to-r dark:from-[#1C1C24] dark:to-[#17171C] border-2 border-[#5B3DF5]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
-                  Quantitative Aptitude • Node #2
-                </span>
-                <h3 className="text-lg sm:text-xl font-black text-neutral-900 dark:text-white">
-                  Profit, Loss &amp; Discount: Marked Price Ratio
-                </h3>
-                <p className="text-xs text-neutral-600 dark:text-neutral-300 max-w-md">
-                  Successive markups, false weights, and segmented discounts before unlocking Node #3.
-                </p>
-              </div>
-
+            <div className="space-y-1 max-w-md mx-auto">
+              <h3 className="text-lg font-black text-neutral-900 dark:text-white">
+                Start Your First Diagnostic Practice Session
+              </h3>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed font-medium">
+                No activity has been logged yet for your account. Complete a 10-question practice drill to establish your baseline accuracy, calibrate your study plan, and detect concept gaps.
+              </p>
+            </div>
+            <div className="pt-2">
               <Link
-                href="/app/learn"
-                className="btn-tactile-purple px-5 py-3 rounded-xl text-xs font-black flex items-center gap-2 flex-shrink-0 shadow"
+                href="/app/practice?exam=cat&count=10"
+                className="btn-tactile-lime px-6 py-3 rounded-xl text-xs font-black inline-flex items-center gap-2"
               >
-                <span>{t("resumeLesson")} (+75 XP)</span>
+                <span>Launch Diagnostic Practice (10 Questions)</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </div>
-
-          {/* AI Recommended Practice Focus */}
-          <div className="bg-white dark:bg-[#17171C] border border-neutral-200 dark:border-[#2E2E36] rounded-3xl p-6 sm:p-8 space-y-4 shadow-sm transition-colors">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <BrainCircuit className="w-5 h-5 text-[#5B3DF5]" />
-                <h3 className="text-base sm:text-lg font-black text-neutral-900 dark:text-white">
-                  AI Diagnostic Focus
-                </h3>
+        ) : (
+          /* REAL ATTEMPT DATA GRID */
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-[#111111] border border-neutral-200 dark:border-[#2A2A2E] space-y-1">
+                <span className="text-[10px] font-black uppercase tracking-wider text-neutral-500">
+                  Questions Attempted
+                </span>
+                <span className="text-2xl sm:text-3xl font-black text-neutral-900 dark:text-white block">
+                  {computedAnalytics.totalSolved}
+                </span>
+                <span className="text-[11px] text-neutral-500 font-semibold block">
+                  {computedAnalytics.totalCorrect} Correct answers
+                </span>
               </div>
-              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#FF4FA3]/15 text-[#FF4FA3] border border-[#FF4FA3]/30">
-                {t("weakTopic")}
-              </span>
+
+              <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-[#111111] border border-neutral-200 dark:border-[#2A2A2E] space-y-1">
+                <span className="text-[10px] font-black uppercase tracking-wider text-neutral-500">
+                  Overall Accuracy
+                </span>
+                <span className="text-2xl sm:text-3xl font-black text-[#2E7D32] dark:text-[#C8FF3D] block">
+                  {computedAnalytics.overallAccuracy}%
+                </span>
+                <span className="text-[11px] text-neutral-500 font-semibold block">
+                  Target threshold: 85%
+                </span>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-[#111111] border border-neutral-200 dark:border-[#2A2A2E] space-y-1">
+                <span className="text-[10px] font-black uppercase tracking-wider text-neutral-500">
+                  Time Spent Studying
+                </span>
+                <span className="text-2xl sm:text-3xl font-black text-neutral-900 dark:text-white block">
+                  {computedAnalytics.timeSpentMinutes}m
+                </span>
+                <span className="text-[11px] text-neutral-500 font-semibold block">
+                  Recorded in drills & mocks
+                </span>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-[#111111] border border-neutral-200 dark:border-[#2A2A2E] space-y-1">
+                <span className="text-[10px] font-black uppercase tracking-wider text-neutral-500">
+                  Proctored Mocks
+                </span>
+                <span className="text-2xl sm:text-3xl font-black text-[#5B3DF5] block">
+                  {computedAnalytics.mockTestsCompleted}
+                </span>
+                <span className="text-[11px] text-neutral-500 font-semibold block">
+                  Simulations completed
+                </span>
+              </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-[#111111] border border-neutral-200 dark:border-[#2A2A2E] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <p className="text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed max-w-lg">
-                Targeted 8-question drill on multi-condition logical arrangements with Socratic AI hints enabled.
-              </p>
-              <Link
-                href="/app/practice?topic=logical-arrangements"
-                className="btn-tactile-lime px-5 py-2.5 rounded-xl text-xs font-black flex-shrink-0 shadow"
-              >
-                {t("startAdaptiveDrill")}
-              </Link>
-            </div>
+            {/* Weak Topics Alert / Guided Recommendation */}
+            {computedAnalytics.weakTopics.length > 0 ? (
+              <div className="p-4 rounded-2xl bg-[#FFF1F7] dark:bg-[#29171E] border border-[#FF4FA3]/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="w-5 h-5 text-[#FF4FA3] flex-shrink-0 mt-0.5" />
+                  <div className="space-y-0.5">
+                    <span className="text-xs font-black text-[#FF4FA3] uppercase tracking-wider block">
+                      Concept Gap Identified
+                    </span>
+                    <p className="text-xs text-neutral-800 dark:text-neutral-200 leading-relaxed font-semibold">
+                      Your accuracy in <strong>{computedAnalytics.weakTopics[0].topic}</strong> is{" "}
+                      {computedAnalytics.weakTopics[0].accuracy}%. Repeated mistakes suggest revising this topic before taking your next mock test.
+                    </p>
+                  </div>
+                </div>
+
+                <Link
+                  href={`/app/practice?topic=${encodeURIComponent(computedAnalytics.weakTopics[0].topic)}`}
+                  className="btn-tactile-pink px-4 py-2 rounded-xl text-xs font-black flex-shrink-0"
+                >
+                  Revise Weak Topic
+                </Link>
+              </div>
+            ) : (
+              <div className="p-4 rounded-2xl bg-[#F4FDE5] dark:bg-[#1C2818] border border-[#C8FF3D]/40 flex items-center justify-between gap-4 text-xs font-semibold text-neutral-800 dark:text-neutral-200">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#C8FF3D]" />
+                  <span>No persistent concept gaps detected in your recent drills. Keep solving to calibrate recommendations!</span>
+                </div>
+                <Link href="/app/practice" className="font-black text-[#2E7D32] dark:text-[#C8FF3D] hover:underline">
+                  Practice More →
+                </Link>
+              </div>
+            )}
           </div>
+        )}
 
+      </div>
+
+      {/* 4. PERSONALIZED VISUAL STUDY ROADMAP (7 STEPS REQUIRED BY PROMPT) */}
+      <div className="bg-white dark:bg-[#17171C] border border-neutral-200 dark:border-[#2E2E36] rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm transition-colors">
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-100 dark:bg-[#111111] border border-[#5B3DF5]/30 text-[#5B3DF5] dark:text-[#C8FF3D] text-xs font-black uppercase tracking-wider mb-2">
+            Personalized Learning Path
+          </div>
+          <h2 className="text-xl font-black text-neutral-900 dark:text-white">
+            7-Step Examination Study Roadmap
+          </h2>
+          <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+            Updated automatically based on your authenticated practice attempts and review milestones.
+          </p>
         </div>
 
-        {/* Right Column: Mistake Notebook Alert, Syllabus Mastery, Recent Badges */}
-        <div className="lg:col-span-4 space-y-8">
-          
-          {/* Mistake Notebook Quick Card */}
-          <div className="bg-white dark:bg-[#17171C] border border-neutral-200 dark:border-[#2E2E36] rounded-3xl p-6 space-y-4 shadow-sm transition-colors">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-[#FF4FA3]">
-                <AlertTriangle className="w-5 h-5" />
-                <h3 className="font-black text-neutral-900 dark:text-white text-base">
-                  {t("mistakeNotebook")}
-                </h3>
-              </div>
-              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#FF4FA3]/15 text-[#FF4FA3]">
-                {mistakes.filter((m) => !m.mastered).length} {t("unresolved")}
-              </span>
-            </div>
+        {/* Roadmap Progression Steps Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-3">
+          {roadmapSteps.map((s) => {
+            const isCompleted = s.status === "completed";
+            const isInProgress = s.status === "in_progress";
+            const isAvailable = s.status === "available";
+            const isLocked = s.status === "locked";
 
-            <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
-              Flagged questions waiting for conceptual re-testing and mastery resolution.
-            </p>
+            return (
+              <div
+                key={s.step}
+                className={`p-4 rounded-2xl border-2 flex flex-col justify-between transition-all ${
+                  isCompleted
+                    ? "bg-[#F4FDE5] dark:bg-[#1C2818] border-[#C8FF3D]"
+                    : isInProgress
+                    ? "bg-[#FFF1F7] dark:bg-[#29171E] border-[#FF4FA3] shadow-[0_0_12px_rgba(255,79,163,0.2)]"
+                    : isAvailable
+                    ? "bg-white dark:bg-[#111111] border-[#5B3DF5]/50"
+                    : "bg-neutral-50 dark:bg-[#111111] border-neutral-200 dark:border-[#2A2A2E] opacity-50"
+                }`}
+              >
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span
+                      className={`w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs ${
+                        isCompleted
+                          ? "bg-[#C8FF3D] text-[#111111]"
+                          : isInProgress
+                          ? "bg-[#FF4FA3] text-white"
+                          : isAvailable
+                          ? "bg-[#5B3DF5] text-white"
+                          : "bg-neutral-300 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400"
+                      }`}
+                    >
+                      {isCompleted ? "✓" : s.step}
+                    </span>
+
+                    <span className="text-[9px] font-black uppercase tracking-wider">
+                      {isCompleted ? (
+                        <span className="text-[#2E7D32] dark:text-[#C8FF3D]">Done</span>
+                      ) : isInProgress ? (
+                        <span className="text-[#FF4FA3]">Current</span>
+                      ) : isAvailable ? (
+                        <span className="text-[#5B3DF5]">Ready</span>
+                      ) : (
+                        <span className="text-neutral-400">Locked</span>
+                      )}
+                    </span>
+                  </div>
+
+                  <h4 className="text-xs font-black text-neutral-900 dark:text-white leading-tight">
+                    {s.title}
+                  </h4>
+                  <p className="text-[10px] text-neutral-600 dark:text-neutral-400 leading-snug line-clamp-3">
+                    {s.description}
+                  </p>
+                </div>
+
+                <div className="pt-3">
+                  {isCompleted ? (
+                    <span className="text-[10px] font-bold text-[#2E7D32] dark:text-[#C8FF3D] flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" /> Completed
+                    </span>
+                  ) : isInProgress ? (
+                    <span className="text-[10px] font-bold text-[#FF4FA3] flex items-center gap-1">
+                      <Play className="w-3 h-3 fill-[#FF4FA3]" /> In Progress
+                    </span>
+                  ) : isAvailable ? (
+                    <span className="text-[10px] font-bold text-[#5B3DF5]">Available</span>
+                  ) : (
+                    <span className="text-[10px] text-neutral-400 flex items-center gap-1">
+                      <Lock className="w-3 h-3" /> Locked
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 5. MISTAKE NOTEBOOK ACCORDION SUMMARY */}
+      {unresolvedMistakes.length > 0 && (
+        <div className="bg-white dark:bg-[#17171C] border border-[#FF4FA3]/40 rounded-3xl p-6 sm:p-8 space-y-4 shadow-sm transition-colors">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5 text-[#FF4FA3]">
+              <AlertTriangle className="w-5 h-5" />
+              <h3 className="font-black text-base text-neutral-900 dark:text-white">
+                Mistake Notebook ({unresolvedMistakes.length} Unresolved)
+              </h3>
+            </div>
 
             <Link
               href="/app/mistakes"
-              className="w-full py-3 rounded-xl bg-[#FFF1F7] dark:bg-[#29171E] hover:bg-[#FFE3EE] dark:hover:bg-[#381B26] text-[#FF4FA3] border border-[#FF4FA3]/50 text-xs font-black flex items-center justify-center gap-2 transition-all shadow-sm"
+              className="text-xs font-black text-[#FF4FA3] hover:underline flex items-center gap-1"
             >
-              <span>{t("reviewMistakes")}</span>
-              <ChevronRight className="w-4 h-4" />
+              <span>Open Notebook</span>
+              <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
-          {/* Topic Mastery Summary */}
-          <div className="bg-white dark:bg-[#17171C] border border-neutral-200 dark:border-[#2E2E36] rounded-3xl p-6 space-y-4 shadow-sm transition-colors">
-            <h3 className="font-black text-neutral-900 dark:text-white text-base">
-              {t("syllabusMastery")}
-            </h3>
+          <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed font-medium">
+            Review your flagged calculation and conceptual mistakes to ensure error patterns are eliminated before mock exams.
+          </p>
 
-            <div className="space-y-3.5 text-xs">
-              <div>
-                <div className="flex justify-between font-bold mb-1">
-                  <span className="text-neutral-700 dark:text-neutral-300">Quantitative Aptitude</span>
-                  <span className="text-[#2E7D32] dark:text-[#C8FF3D] font-black">72%</span>
-                </div>
-                <div className="w-full h-2 bg-neutral-200 dark:bg-[#111111] rounded-full overflow-hidden">
-                  <div className="h-full bg-[#C8FF3D] rounded-full" style={{ width: "72%" }} />
-                </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            {unresolvedMistakes.slice(0, 2).map((m) => (
+              <div key={m.id} className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-[#111111] border border-neutral-200 dark:border-[#2A2A2E] space-y-1 text-xs">
+                <span className="text-[10px] font-black uppercase text-[#FF4FA3] block">{m.topic}</span>
+                <p className="font-semibold text-neutral-900 dark:text-white truncate">{m.prompt}</p>
+                <span className="text-[10px] text-neutral-500 block">Flagged: {m.addedAt}</span>
               </div>
-
-              <div>
-                <div className="flex justify-between font-bold mb-1">
-                  <span className="text-neutral-700 dark:text-neutral-300">VARC (Verbal Ability)</span>
-                  <span className="text-[#5B3DF5] font-black">84%</span>
-                </div>
-                <div className="w-full h-2 bg-neutral-200 dark:bg-[#111111] rounded-full overflow-hidden">
-                  <div className="h-full bg-[#5B3DF5] rounded-full" style={{ width: "84%" }} />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between font-bold mb-1">
-                  <span className="text-neutral-700 dark:text-neutral-300">DILR (Logical Reasoning)</span>
-                  <span className="text-[#FF4FA3] font-black">65%</span>
-                </div>
-                <div className="w-full h-2 bg-neutral-200 dark:bg-[#111111] rounded-full overflow-hidden">
-                  <div className="h-full bg-[#FF4FA3] rounded-full" style={{ width: "65%" }} />
-                </div>
-              </div>
-            </div>
-
-            <Link
-              href="/app/analytics"
-              className="text-xs font-bold text-[#5B3DF5] dark:text-[#C8FF3D] hover:underline block pt-1"
-            >
-              {t("detailedAnalytics")}
-            </Link>
+            ))}
           </div>
-
-          {/* Recent Achievements */}
-          <div className="bg-white dark:bg-[#17171C] border border-neutral-200 dark:border-[#2E2E36] rounded-3xl p-6 space-y-4 shadow-sm transition-colors">
-            <div className="flex items-center justify-between">
-              <h3 className="font-black text-neutral-900 dark:text-white text-base">
-                {t("recentBadges")}
-              </h3>
-              <Link href="/app/achievements" className="text-xs font-bold text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white">
-                {t("all")}
-              </Link>
-            </div>
-
-            <div className="space-y-2.5">
-              {achievements.slice(0, 3).map((ach) => (
-                <div
-                  key={ach.id}
-                  className={`p-3 rounded-2xl border flex items-center gap-3 text-xs transition-colors ${
-                    ach.is_unlocked
-                      ? "bg-neutral-50 dark:bg-[#1F1F24] border-neutral-200 dark:border-[#C8FF3D]/40 text-neutral-900 dark:text-white"
-                      : "bg-neutral-50/50 dark:bg-[#111111] border-neutral-200 dark:border-[#2A2A2E] text-neutral-400 opacity-60"
-                  }`}
-                >
-                  <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#111111] border border-neutral-200 dark:border-[#2A2A2E] flex items-center justify-center text-lg shadow-sm">
-                    {ach.is_unlocked ? "🏆" : "🔒"}
-                  </div>
-                  <div>
-                    <h4 className="font-black text-neutral-900 dark:text-white">{ach.title}</h4>
-                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400">{ach.description}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
         </div>
-
-      </div>
+      )}
 
     </div>
   );
